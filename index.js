@@ -1,7 +1,7 @@
-import express from 'express'
-import nodemailer from 'nodemailer'
-import dotenv from 'dotenv'
-import sanityClient from '@sanity/client'
+const express = require('express');
+const nodemailer = require('nodemailer');
+const dotenv = require('dotenv');
+const sanityClient = require('@sanity/client');
 
 dotenv.config()
 const app = express()
