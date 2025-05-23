@@ -51,12 +51,22 @@ app.post('/anfrage', (req, res) => {
         erstelltAm: new Date().toISOString(),
       });
 
-      await mailer.sendMail({
-        from: `"Website Anfrage" <${process.env.EMAIL_USER}>`,
-        to: process.env.EMAIL_TO,
-        subject: '📩 Neue Anfrage von der Website',
-        text: `Name: ${name}\nE-Mail: ${email}\n\nNachricht:\n${nachricht}`,
-      });
+    await mailer.sendMail({
+      from: `"Website Anfrage" <${process.env.EMAIL_USER}>`,
+      to: process.env.EMAIL_TO,
+      subject: '📩 Neue Anfrage von der Website',
+      text: `Name: ${name}\nE-Mail: ${email}\nNachricht:\n${nachricht}`,
+      html: `
+        <div style="font-family: sans-serif; padding: 10px;">
+          <h2 style="color: #ec4899;">📩 Neue Anfrage von der Website</h2>
+          <p><strong>Name:</strong> ${name}</p>
+          <p><strong>E-Mail:</strong> <a href="mailto:${email}">${email}</a></p>
+          <p><strong>Nachricht:</strong><br>${nachricht.replace(/\n/g, '<br>')}</p>
+          <hr>
+          <p style="font-size: 12px; color: #999;">Automatische Benachrichtigung – nicht antworten</p>
+        </div>
+      `
+    });
 
       console.log(`✅ Anfrage von ${name} erfolgreich verarbeitet.`);
     } catch (err) {
