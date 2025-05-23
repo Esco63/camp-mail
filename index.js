@@ -54,13 +54,29 @@ app.post('/anfrage', (req, res) => {
         to: process.env.EMAIL_TO,
         subject: '📩 Neue Anfrage von der Website',
         html: `
-          <div style="font-family: sans-serif; padding: 10px;">
-            <h2 style="color: #ec4899;">📩 Neue Anfrage von der Website</h2>
-            <p><strong>Name:</strong> ${name}</p>
-            <p><strong>E-Mail:</strong> <a href="mailto:${email}">${email}</a></p>
-            <p><strong>Nachricht:</strong><br>${nachricht.replace(/\n/g, '<br>')}</p>
-            <hr>
-            <p style="font-size: 12px; color: #999;">Automatische Benachrichtigung – nicht antworten</p>
+          <div style="font-family: 'Segoe UI', sans-serif; max-width: 600px; margin: 0 auto; background: #fff; border-radius: 10px; padding: 20px; border: 1px solid #eee;">
+            <h2 style="color: #ec4899; text-align: center; margin-bottom: 20px;">📩 Neue Anfrage von der Camp-Website</h2>
+            
+            <table style="width: 100%; font-size: 15px; line-height: 1.6;">
+              <tr>
+                <td style="font-weight: bold; width: 130px;">👤 Name:</td>
+                <td>${name}</td>
+              </tr>
+              <tr>
+                <td style="font-weight: bold;">📧 E-Mail:</td>
+                <td><a href="mailto:${email}">${email}</a></td>
+              </tr>
+              <tr>
+                <td style="font-weight: bold; vertical-align: top;">💬 Nachricht:</td>
+                <td style="white-space: pre-line;">${nachricht}</td>
+              </tr>
+            </table>
+
+            <hr style="margin: 25px 0; border: none; border-top: 1px solid #ddd;">
+
+            <p style="font-size: 12px; color: #999; text-align: center;">
+              Diese Nachricht wurde automatisch von der Website <strong>camp-schwerin.de</strong> gesendet.
+            </p>
           </div>
         `
       });
@@ -100,17 +116,45 @@ app.post('/buchung', (req, res) => {
         to: process.env.EMAIL_TO,
         subject: '📆 Neue Buchungsanfrage',
         html: `
-          <div style="font-family: sans-serif; padding: 10px;">
-            <h2 style="color:#ec4899;">📆 Neue Buchungsanfrage</h2>
-            <p><strong>Name:</strong> ${name}</p>
-            <p><strong>E-Mail:</strong> <a href="mailto:${email}">${email}</a></p>
-            <p><strong>Telefon:</strong> ${telefonnummer}</p>
-            <p><strong>Datum:</strong> ${datum}</p>
-            <p><strong>Personenanzahl:</strong> ${personenanzahl}</p>
-            <p><strong>Typ:</strong> ${typ}</p>
-            <p><strong>Nachricht:</strong><br>${nachricht.replace(/\n/g, '<br>')}</p>
-            <hr>
-            <p style="font-size: 12px; color: #999;">Automatisch versendet vom Camp-Formular</p>
+          <div style="font-family: 'Segoe UI', sans-serif; max-width: 650px; margin: 0 auto; background: #fff; border-radius: 10px; padding: 20px; border: 1px solid #eee;">
+            <h2 style="color: #ec4899; text-align: center; margin-bottom: 20px;">📆 Neue Buchungsanfrage</h2>
+            
+            <table style="width: 100%; font-size: 15px; line-height: 1.6;">
+              <tr>
+                <td style="font-weight: bold; width: 160px;">👤 Name:</td>
+                <td>${name}</td>
+              </tr>
+              <tr>
+                <td style="font-weight: bold;">📧 E-Mail:</td>
+                <td><a href="mailto:${email}">${email}</a></td>
+              </tr>
+              <tr>
+                <td style="font-weight: bold;">📱 Telefon:</td>
+                <td>${telefonnummer}</td>
+              </tr>
+              <tr>
+                <td style="font-weight: bold;">📅 Datum:</td>
+                <td>${datum}</td>
+              </tr>
+              <tr>
+                <td style="font-weight: bold;">👥 Personenanzahl:</td>
+                <td>${personenanzahl}</td>
+              </tr>
+              <tr>
+                <td style="font-weight: bold;">🎯 Veranstaltungstyp:</td>
+                <td>${typ}</td>
+              </tr>
+              <tr>
+                <td style="font-weight: bold; vertical-align: top;">📝 Nachricht:</td>
+                <td style="white-space: pre-line;">${nachricht}</td>
+              </tr>
+            </table>
+
+            <hr style="margin: 25px 0; border: none; border-top: 1px solid #ddd;">
+
+            <p style="font-size: 12px; color: #999; text-align: center;">
+              Automatisch über das Buchungsformular auf <strong>camp-schwerin.de</strong> gesendet.
+            </p>
           </div>
         `
       });
