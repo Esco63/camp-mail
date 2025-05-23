@@ -7,7 +7,7 @@ import { createClient } from '@sanity/client';
 // 🔐 .env laden
 dotenv.config();
 
-// 🌐 CORS aktivieren (Frontend darf zugreifen)
+// 🌐 Express App + CORS
 const app = express();
 app.use(cors());
 app.use(express.json());
@@ -21,7 +21,7 @@ const sanity = createClient({
   useCdn: false,
 });
 
-// 📬 Nodemailer
+// 📬 Mailer
 const mailer = nodemailer.createTransport({
   host: process.env.EMAIL_HOST,
   port: process.env.EMAIL_PORT,
@@ -32,35 +32,40 @@ const mailer = nodemailer.createTransport({
   },
 });
 
-// 📩 Anfrage-Endpunkt
-app.post('/anfrage', async (req, res) => {
-  try {
-    const { name, email, nachricht } = req.body;
+// 📩 Kontakt-Endpunkt – jetzt schnell!
+app.post('/anfrage', (req, res) => {
+  const { name, email, nachricht } = req.body;
 
-    await sanity.create({
-      _type: 'kontaktanfrage',
-      name,
-      email,
-      nachricht,
-      gelesen: false,
-      erstelltAm: new Date().toISOString(),
-    });
+  // 👉 sofortige Rückmeldung an Website-Besucher
+  res.send({ status: 'OK' });
 
-    await mailer.sendMail({
-      from: `"Website Anfrage" <${process.env.EMAIL_USER}>`,
-      to: process.env.EMAIL_TO,
-      subject: '📩 Neue Anfrage von der Website',
-      text: `Name: ${name}\nE-Mail: ${email}\n\nNachricht:\n${nachricht}`,
-    });
+  // 🧠 Speichern & Mail im Hintergrund
+  (async () => {
+    try {
+      await sanity.create({
+        _type: 'kontaktanfrage',
+        name,
+        email,
+        nachricht,
+        gelesen: false,
+        erstelltAm: new Date().toISOString(),
+      });
 
-    res.send({ status: 'OK' });
-  } catch (err) {
-    console.error(err);
-    res.status(500).send({ status: 'Fehler beim Speichern oder Senden' });
-  }
+      await mailer.sendMail({
+        from: `"Website Anfrage" <${process.env.EMAIL_USER}>`,
+        to: process.env.EMAIL_TO,
+        subject: '📩 Neue Anfrage von der Website',
+        text: `Name: ${name}\nE-Mail: ${email}\n\nNachricht:\n${nachricht}`,
+      });
+
+      console.log(`✅ Anfrage von ${name} erfolgreich verarbeitet.`);
+    } catch (err) {
+      console.error('❌ Fehler im Hintergrund:', err);
+    }
+  })();
 });
 
-// 🟢 Server starten
+// 🟢 Start
 const PORT = process.env.PORT || 3000;
 app.listen(PORT, () => {
   console.log(`🚀 Server läuft auf http://localhost:${PORT}`);
