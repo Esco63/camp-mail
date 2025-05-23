@@ -32,14 +32,12 @@ const mailer = nodemailer.createTransport({
   },
 });
 
-// 📩 Kontakt-Endpunkt – jetzt schnell!
+// 📩 Kontakt-Endpunkt
 app.post('/anfrage', (req, res) => {
   const { name, email, nachricht } = req.body;
 
-  // 👉 sofortige Rückmeldung an Website-Besucher
-  res.send({ status: 'OK' });
+  res.send({ status: 'OK' }); // sofortige Rückmeldung
 
-  // 🧠 Speichern & Mail im Hintergrund
   (async () => {
     try {
       await sanity.create({
@@ -51,78 +49,75 @@ app.post('/anfrage', (req, res) => {
         erstelltAm: new Date().toISOString(),
       });
 
-    await mailer.sendMail({
-      from: `"Website Anfrage" <${process.env.EMAIL_USER}>`,
-      to: process.env.EMAIL_TO,
-      subject: '📩 Neue Anfrage von der Website',
-      text: `Name: ${name}\nE-Mail: ${email}\nNachricht:\n${nachricht}`,
-      html: `
-        <div style="font-family: sans-serif; padding: 10px;">
-          <h2 style="color: #ec4899;">📩 Neue Anfrage von der Website</h2>
-          <p><strong>Name:</strong> ${name}</p>
-          <p><strong>E-Mail:</strong> <a href="mailto:${email}">${email}</a></p>
-          <p><strong>Nachricht:</strong><br>${nachricht.replace(/\n/g, '<br>')}</p>
-          <hr>
-          <p style="font-size: 12px; color: #999;">Automatische Benachrichtigung – nicht antworten</p>
-        </div>
-      `
-    });
+      await mailer.sendMail({
+        from: `"Website Anfrage" <${process.env.EMAIL_USER}>`,
+        to: process.env.EMAIL_TO,
+        subject: '📩 Neue Anfrage von der Website',
+        html: `
+          <div style="font-family: sans-serif; padding: 10px;">
+            <h2 style="color: #ec4899;">📩 Neue Anfrage von der Website</h2>
+            <p><strong>Name:</strong> ${name}</p>
+            <p><strong>E-Mail:</strong> <a href="mailto:${email}">${email}</a></p>
+            <p><strong>Nachricht:</strong><br>${nachricht.replace(/\n/g, '<br>')}</p>
+            <hr>
+            <p style="font-size: 12px; color: #999;">Automatische Benachrichtigung – nicht antworten</p>
+          </div>
+        `
+      });
 
-    app.post('/buchung', (req, res) => {
-      const {
-        name, email, telefonnummer,
-        datum, personenanzahl, typ, nachricht
-      } = req.body;
-
-      res.send({ status: 'OK' }); // sofortige Rückmeldung
-
-      (async () => {
-        try {
-          // Sanity speichern
-          await sanity.create({
-            _type: 'buchungsanfrage',
-            name,
-            email,
-            telefonnummer,
-            datum,
-            personenanzahl,
-            typ,
-            nachricht,
-            eingegangenAm: new Date().toISOString()
-          });
-
-          // E-Mail senden
-          await mailer.sendMail({
-            from: `"Buchung - Camp Schwerin" <${process.env.EMAIL_USER}>`,
-            to: process.env.EMAIL_TO,
-            subject: '📆 Neue Buchungsanfrage',
-            html: `
-              <div style="font-family: sans-serif; padding: 10px;">
-                <h2 style="color:#ec4899;">📆 Neue Buchungsanfrage</h2>
-                <p><strong>Name:</strong> ${name}</p>
-                <p><strong>E-Mail:</strong> <a href="mailto:${email}">${email}</a></p>
-                <p><strong>Telefon:</strong> ${telefonnummer}</p>
-                <p><strong>Datum:</strong> ${datum}</p>
-                <p><strong>Personenanzahl:</strong> ${personenanzahl}</p>
-                <p><strong>Typ:</strong> ${typ}</p>
-                <p><strong>Nachricht:</strong><br>${nachricht.replace(/\n/g, '<br>')}</p>
-                <hr>
-                <p style="font-size: 12px; color: #999;">Automatisch versendet vom Camp-Formular</p>
-              </div>
-            `
-          });
-
-          console.log(`✅ Buchung von ${name} verarbeitet.`);
-        } catch (err) {
-          console.error('❌ Fehler bei Buchung:', err);
-        }
-      })();
-    });
-
-
-      console.log(`✅ Anfrage von ${name} erfolgreich verarbeitet.`);
+      console.log(`✅ Anfrage von ${name} verarbeitet.`);
     } catch (err) {
-      console.error('❌ Fehler im Hintergrund:', err);
+      console.error('❌ Fehler bei Anfrage:', err);
+    }
+  })();
+});
+
+// 📆 Buchungs-Endpunkt
+app.post('/buchung', (req, res) => {
+  const {
+    name, email, telefonnummer,
+    datum, personenanzahl, typ, nachricht
+  } = req.body;
+
+  res.send({ status: 'OK' }); // sofortige Rückmeldung
+
+  (async () => {
+    try {
+      await sanity.create({
+        _type: 'buchungsanfrage',
+        name,
+        email,
+        telefonnummer,
+        datum,
+        personenanzahl,
+        typ,
+        nachricht,
+        eingegangenAm: new Date().toISOString()
+      });
+
+      await mailer.sendMail({
+        from: `"Buchung - Camp Schwerin" <${process.env.EMAIL_USER}>`,
+        to: process.env.EMAIL_TO,
+        subject: '📆 Neue Buchungsanfrage',
+        html: `
+          <div style="font-family: sans-serif; padding: 10px;">
+            <h2 style="color:#ec4899;">📆 Neue Buchungsanfrage</h2>
+            <p><strong>Name:</strong> ${name}</p>
+            <p><strong>E-Mail:</strong> <a href="mailto:${email}">${email}</a></p>
+            <p><strong>Telefon:</strong> ${telefonnummer}</p>
+            <p><strong>Datum:</strong> ${datum}</p>
+            <p><strong>Personenanzahl:</strong> ${personenanzahl}</p>
+            <p><strong>Typ:</strong> ${typ}</p>
+            <p><strong>Nachricht:</strong><br>${nachricht.replace(/\n/g, '<br>')}</p>
+            <hr>
+            <p style="font-size: 12px; color: #999;">Automatisch versendet vom Camp-Formular</p>
+          </div>
+        `
+      });
+
+      console.log(`✅ Buchung von ${name} verarbeitet.`);
+    } catch (err) {
+      console.error('❌ Fehler bei Buchung:', err);
     }
   })();
 });
