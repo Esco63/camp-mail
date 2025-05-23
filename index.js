@@ -1,12 +1,18 @@
 import express from 'express';
+import cors from 'cors';
 import nodemailer from 'nodemailer';
 import dotenv from 'dotenv';
 import { createClient } from '@sanity/client';
 
-// 🔐 Lade .env-Konfiguration
+// 🔐 .env laden
 dotenv.config();
 
-// 🧠 Sanity-Client initialisieren
+// 🌐 CORS aktivieren (Frontend darf zugreifen)
+const app = express();
+app.use(cors());
+app.use(express.json());
+
+// 🧠 Sanity Client
 const sanity = createClient({
   projectId: process.env.SANITY_PROJECT_ID,
   dataset: 'production',
@@ -15,7 +21,7 @@ const sanity = createClient({
   useCdn: false,
 });
 
-// 📨 Mail-Transporter (z. B. Gmail SMTP oder Mailjet)
+// 📬 Nodemailer
 const mailer = nodemailer.createTransport({
   host: process.env.EMAIL_HOST,
   port: process.env.EMAIL_PORT,
@@ -26,16 +32,11 @@ const mailer = nodemailer.createTransport({
   },
 });
 
-// 🚀 Express App Setup
-const app = express();
-app.use(express.json());
-
-// 📩 Anfrage-Endpunkt (Frontend schickt POST an /anfrage)
+// 📩 Anfrage-Endpunkt
 app.post('/anfrage', async (req, res) => {
   try {
     const { name, email, nachricht } = req.body;
 
-    // In Sanity speichern
     await sanity.create({
       _type: 'kontaktanfrage',
       name,
@@ -45,7 +46,6 @@ app.post('/anfrage', async (req, res) => {
       erstelltAm: new Date().toISOString(),
     });
 
-    // E-Mail senden
     await mailer.sendMail({
       from: `"Website Anfrage" <${process.env.EMAIL_USER}>`,
       to: process.env.EMAIL_TO,
@@ -60,7 +60,7 @@ app.post('/anfrage', async (req, res) => {
   }
 });
 
-// 🌍 Auf PORT von Render hören
+// 🟢 Server starten
 const PORT = process.env.PORT || 3000;
 app.listen(PORT, () => {
   console.log(`🚀 Server läuft auf http://localhost:${PORT}`);
